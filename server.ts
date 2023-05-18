@@ -10,6 +10,29 @@ app.use(async (ctx, next) => {
   await next();
 });
 
+// Middleware function to check for authentication token
+const authMiddleware = async (ctx: any, next: any) => {
+  const authHeader = ctx.request.headers.get("Authorization");
+  if (!authHeader) {
+    ctx.response.status = 401;
+    ctx.response.body = "Unauthorized";
+    return;
+  }
+  // Check that the token is mysecrettoken, authHeader will be 'Bearer mysecrettoken'
+  const token = authHeader.split(" ")[1];
+  if (token !== "mysecrettoken") {
+    ctx.response.status = 401;
+    ctx.response.body = "Unauthorized";
+    return;
+  }
+  await next();
+};
+
+// Use the authorization middleware function for a specific route
+router.get("/api/protected", authMiddleware, (ctx) => {
+  ctx.response.body = "This is a protected route";
+});
+
 // Define a route that returns a JSON response
 router.get("/api/users", (ctx) => {
   ctx.response.headers.set("Content-Type", "application/json");
