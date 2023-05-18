@@ -1,14 +1,32 @@
 // @ts-ignore
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
 
-const app = new Application();
-const router = new Router();
+// ====== Logger middleware ======
 
 // Define a middleware function that logs the request method and URL
-app.use(async (ctx, next) => {
+const logger = async (ctx: any, next: any) => {
   console.log(`${ctx.request.method} ${ctx.request.url}`);
   await next();
-});
+}
+  
+// ====== Error handler middleware ======
+
+const errorHandler = async (ctx: any, next: any) => {
+  try {
+    await next();
+  } catch (err) {
+    console.error(err);
+    if (err.status === 404) {
+      ctx.response.status = 404;
+      ctx.response.body = "Sorry, the requested resource was not found";
+    } else {
+      ctx.response.status = 500;
+      ctx.response.body = "Internal Server Error";
+    }
+  }
+};
+
+// ====== Authorization Middleware ======
 
 // Middleware function to check for authentication token
 const authMiddleware = async (ctx: any, next: any) => {
@@ -28,35 +46,29 @@ const authMiddleware = async (ctx: any, next: any) => {
   await next();
 };
 
+// ====== Routes ======
+
+const router = new Router();
+
 // Use the authorization middleware function for a specific route
-router.get("/api/protected", authMiddleware, (ctx) => {
+router.get("/api/protected", authMiddleware, (ctx: any) => {
   ctx.response.body = "This is a protected route";
 });
 
 // Define a route that returns a JSON response
-router.get("/api/users", (ctx) => {
+router.get("/api/users", (ctx: any) => {
   ctx.response.headers.set("Content-Type", "application/json");
   ctx.response.body = { users: [{ name: "John" }, { name: "Jane" }] };
 });
 
-router.get("/", (ctx) => {
+router.get("/", (ctx: any) => {
   // This will throw a 404 error because the requested resource does not exist
   ctx.throw(404, "Resource not found");
 });
 
-// Define an error-handling middleware function that returns a custom error message for 404 errors
-app.use(async (ctx, next) => {
-  try {
-    await next();
-  } catch (err) {
-    if (err.status === 404) {
-      ctx.response.status = 404;
-      ctx.response.body = "Sorry, the requested resource was not found";
-    } else {
-      throw err;
-    }
-  }
-});
+const app = new Application();
+app.use(logger);
+app.use(errorHandler);
 
 app.use(router.routes());
 app.use(router.allowedMethods());
