@@ -1,7 +1,20 @@
+// @ts-ignore
 import { Application, Router } from "https://deno.land/x/oak/mod.ts";
 
 const app = new Application();
 const router = new Router();
+
+// Define a middleware function that logs the request method and URL
+app.use(async (ctx, next) => {
+  console.log(`${ctx.request.method} ${ctx.request.url}`);
+  await next();
+});
+
+// Define a route that returns a JSON response
+router.get("/api/users", (ctx) => {
+  ctx.response.headers.set("Content-Type", "application/json");
+  ctx.response.body = { users: [{ name: "John" }, { name: "Jane" }] };
+});
 
 router.get("/", (ctx) => {
   // This will throw a 404 error because the requested resource does not exist
