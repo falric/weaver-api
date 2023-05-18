@@ -73,5 +73,7 @@ app.use(errorHandler);
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-console.log("Server started on http://localhost:8000");
-await app.listen({ port: 8000 });
+// @ts-ignore
+const port = Deno.env.get("PORT") || "8000";
+console.log(`Server started on http://localhost:${port}`);
+await app.listen({ port });
