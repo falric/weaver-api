@@ -1,6 +1,7 @@
 import { Context, Router } from 'oak/mod.ts';
 
 import authMiddleware from "./middleware/authorization.ts";
+import { createUser, readUser, updateUser, deleteUser, readAllUsers } from "./routes/users.ts";
 
 const router = new Router();
 
@@ -9,11 +10,11 @@ router.get("/api/protected", authMiddleware, (ctx: Context) => {
   ctx.response.body = "This is a protected route";
 });
 
-// Define a route that returns a JSON response
-router.get("/api/users", (ctx: Context) => {
-  ctx.response.headers.set("Content-Type", "application/json");
-  ctx.response.body = { users: [{ name: "John" }, { name: "Jane" }] };
-});
+router.put("/api/user/:userId", createUser);
+router.get("/api/user/:userId", readUser);
+router.post("/api/user/:userId", updateUser);
+router.delete("/api/user/:userId", deleteUser);
+router.get("/api/users", readAllUsers);
 
 router.get("/", (ctx: Context) => {
   // This will throw a 404 error because the requested resource does not exist
