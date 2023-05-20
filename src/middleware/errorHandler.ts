@@ -1,4 +1,6 @@
-const errorHandler = async (ctx: any, next: any) => {
+import { Context, Next } from 'oak/mod.ts';
+
+const errorHandler = async (ctx: Context, next: Next) => {
   try {
     await next();
   } catch (err) {
