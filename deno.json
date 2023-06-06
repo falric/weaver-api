@@ -1,6 +1,7 @@
 {
   "imports": {
-    "oak/": "https://deno.land/x/oak@v12.4.0/"
+    "oak/": "https://deno.land/x/oak@v12.4.0/",
+    "testing/asserts": "https://deno.land/std@0.190.0/testing/asserts.ts"
   },
   "tasks": {
     "start": "deno run --allow-net --allow-env src/server.ts"
